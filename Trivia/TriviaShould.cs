@@ -1,0 +1,218 @@
+﻿using NFluent;
+using NUnit.Framework;
+
+namespace Trivia;
+
+internal class TriviaShould
+{
+    private Game _game = null!;
+
+    [SetUp]
+    public void Setup()
+    {
+        _game = new Game();
+    }
+
+    [Test]
+    public void Run_when_players_are_at_least_two_players()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+
+        Check.That(_game.IsPlayable()).IsTrue();
+    }
+
+    [Test]
+    public void Not_Run_when_players_are_not_at_least_two_players()
+    {
+        _game.Add("Chet");
+        Check.That(_game.IsPlayable()).IsFalse();
+    }
+
+    [Test]
+    public void Move_players_at_new_location_when_they_roll_the_dice()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+
+        _game.Roll(6);
+
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+
+        _game.WasCorrectlyAnswered();
+
+        Check.That(LocationForPlayer("Chet")).IsEqualTo(6);
+        Check.That(LocationForPlayer("Pat")).IsEqualTo(2);
+    }
+
+    [Test]
+    public void Location_for_player_raise_exception_when_the_player_is_not_added()
+    {
+        Check.ThatCode(() => LocationForPlayer("Paul")).Throws<ArgumentException>()
+            .WithMessage("Player Paul not found");
+    }
+
+    [Test]
+    public void Go_to_player_in_penalty_box_when_bad_answer()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+
+        _game.Roll(6);
+
+        _game.WrongAnswer();
+
+        Check.That(PlayerIsInPenaltyBox("Chet")).IsTrue();
+    }
+
+    [Test]
+    public void Player_is_in_penalty_box_raise_exception_when_the_player_is_not_added()
+    {
+        Check.ThatCode(() => PlayerIsInPenaltyBox("Paul"))
+            .Throws<ArgumentException>().WithMessage("Player Paul not found");
+    }
+
+    [Test]
+    public void Go_to_out_penalty_box_when_player_correctly_answered_with_odd_number()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+
+        _game.Roll(6);
+
+        _game.WrongAnswer();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(3);
+        _game.WasCorrectlyAnswered();
+
+        Check.That(PlayerIsInPenaltyBox("Chet")).IsFalse();
+    }
+
+    [Test]
+    public void Do_not_go_to_out_penalty_box_when_player_correctly_answered_with_even_number()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+
+        _game.Roll(6);
+
+        _game.WrongAnswer();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        Check.That(PlayerIsInPenaltyBox("Chet")).IsTrue();
+    }
+
+    [Test]
+    public void Do_not_go_to_out_penalty_box_when_player()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+
+        _game.Roll(7);
+        _game.WrongAnswer();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(3);
+        _game.WrongAnswer();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        Check.That(PlayerIsInPenaltyBox("Chet")).IsTrue();
+    }
+
+    [Test]
+    public void Make_a_winner_when_a_player_correctly_answer_six_time()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+
+        _game.Roll(6);
+        _game.WrongAnswer();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        _game.Roll(2);
+        _game.WasCorrectlyAnswered();
+
+        Check.That(PlayerWin("Pat")).IsTrue();
+        Check.That(PlayerWin("Chet")).IsFalse();
+    }
+
+    [Test]
+    public void Player_win_raise_exception_when_the_player_is_not_added()
+    {
+        Check.ThatCode(() => PlayerWin("Paul")).Throws<ArgumentException>()
+            .WithMessage("Player Paul not found");
+    }
+
+    private int LocationForPlayer(string playerName)
+    {
+        var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
+
+        if (indexOfPlayer != -1) return _game.Board[indexOfPlayer].Location;
+
+        throw new ArgumentException($"Player {playerName} not found");
+    }
+
+    private bool PlayerIsInPenaltyBox(string playerName)
+    {
+        var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
+
+        if (indexOfPlayer != -1) return _game.Board[indexOfPlayer].IsInPenaltyBox;
+
+        throw new ArgumentException($"Player {playerName} not found");
+    }
+
+    private bool PlayerWin(string playerName)
+    {
+        var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
+
+        if (indexOfPlayer != -1) return !_game.Board[indexOfPlayer].DidWin();
+
+        throw new ArgumentException($"Player {playerName} not found");
+    }
+}

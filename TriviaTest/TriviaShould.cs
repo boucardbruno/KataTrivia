@@ -1,7 +1,8 @@
 ﻿using NFluent;
 using NUnit.Framework;
+using Trivia;
 
-namespace Trivia;
+namespace TriviaTest;
 
 internal class TriviaShould
 {

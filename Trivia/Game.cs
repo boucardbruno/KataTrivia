@@ -31,10 +31,10 @@ public class Game
         if (CurrentPlayer.IsInPenaltyBox)
             AttemptToExitFromPenaltyBox(dice);
         else
-            PlayerMovesForwardAndAskQuestion(dice);
+            PlayerMovesForwardAndIsAskedQuestion(dice);
     }
 
-    private void PlayerMovesForwardAndAskQuestion(Dice dice)
+    private void PlayerMovesForwardAndIsAskedQuestion(Dice dice)
     {
         CurrentPlayer.MovesForward(dice);
         CurrentPlayer.AsKQuestion();
@@ -45,7 +45,7 @@ public class Game
         if (dice.IsOdd)
         {
             CurrentPlayer.GettingOutPenaltyBox();
-            PlayerMovesForwardAndAskQuestion(dice);
+            PlayerMovesForwardAndIsAskedQuestion(dice);
         }
         else
         {
@@ -68,7 +68,9 @@ public class Game
 
     private bool IsLeavingOrNotPenaltyBox()
     {
-        return CurrentPlayer.IsGettingOutOfPenaltyBox ? PlayerGainColdCoin() : Board.TurnToTheNextPlayer(CurrentPlayer.DidWin());
+        return CurrentPlayer.IsGettingOutOfPenaltyBox ? 
+            PlayerGainColdCoin() : 
+            Board.TurnToTheNextPlayer(CurrentPlayer.DidWin());
     }
 
     private bool PlayerGainColdCoin()

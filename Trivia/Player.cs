@@ -2,10 +2,10 @@
 
 namespace Trivia;
 
-public class Player(string name, IProvideQuestionBank questionBank)
+public class Player(string name)
 {
     public string Name { get; } = name;
-    public int Location { get; private set; }
+    public int Location { get; set; }
     public bool IsInPenaltyBox { get; private set; }
     public bool IsGettingOutOfPenaltyBox { get; private set; }
 
@@ -16,20 +16,6 @@ public class Player(string name, IProvideQuestionBank questionBank)
         WriteLine("Answer was correct!!!!");
         GoldCoins++;
         WriteLine($"{Name} now has {GoldCoins} Gold Coins.");
-    }
-
-    public void AsKQuestion()
-    {
-        questionBank.AskQuestion(this);
-    }
-
-    public void MovesForward(Dice diceNumber)
-    {
-        Location += diceNumber.Number;
-        if (Location > 11) Location -= 12;
-
-        WriteLine($"{Name}'s new location is {Location}");
-        WriteLine($"The category is {questionBank.CurrentCategory(this)}");
     }
 
     public void GettingOutPenaltyBox()

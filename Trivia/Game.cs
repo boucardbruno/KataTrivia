@@ -4,9 +4,15 @@ namespace Trivia;
 
 public class Game
 {
-    public Board Board { get; } = new();
+    public Board Board { get; }
 
     private readonly IProvideQuestionBank _questionBank = new QuestionBank();
+
+    public Game()
+    {
+        Board = new(_questionBank);
+    }
+
     private Player CurrentPlayer => Board.CurrentPlayer;
 
     public bool IsPlayable()
@@ -16,7 +22,7 @@ public class Game
 
     public void Add(string playerName)
     {
-        Board.Add(new Player(playerName, _questionBank));
+        Board.Add(new Player(playerName));
         WriteLine(playerName + " was added");
         WriteLine("They are player number " + Board.Players.Count);
     }
@@ -36,8 +42,8 @@ public class Game
 
     private void PlayerMovesForwardAndIsAskedQuestion(Dice dice)
     {
-        CurrentPlayer.MovesForward(dice);
-        CurrentPlayer.AsKQuestion();
+        Board.MovesForward(dice);
+        Board.AsKQuestion();
     }
 
     private void AttemptToExitFromPenaltyBox(Dice dice)

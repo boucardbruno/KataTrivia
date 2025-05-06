@@ -2,7 +2,7 @@
 
 public class QuestionBank : IProvideQuestionBank
 {
-    private const int MaxQuestionsPerCategory = 50;
+    const int MaxQuestions = 50;
 
     private readonly Dictionary<string, Stack<string>> _questionsPerCategory = new()
     {
@@ -19,28 +19,18 @@ public class QuestionBank : IProvideQuestionBank
 
     public void AskQuestion(Player player)
     {
-        foreach (var (key, _) in _questionsPerCategory)
-            if (CurrentCategory(player) == key)
-            {
-                _questionsPerCategory[key].Pop();
-                break;
-            }
+        _questionsPerCategory[CurrentCategory(player)].Pop();
     }
 
     public string CurrentCategory(Player player)
     {
-        var questionLabels = _questionsPerCategory.Keys.ToArray();
-
-        return (player.Location % 4) switch
-        {
-            var i => questionLabels[i]
-        };
+        return _questionsPerCategory.Keys.ToArray()[player.Location %  4];
     }
 
     private void InitializeQuestions()
     {
-        for (var i = 0; i < MaxQuestionsPerCategory; i++)
-            foreach (var (key, value) in _questionsPerCategory)
-                _questionsPerCategory[key].Push($"{value} Question {i}");
+        for (var i = MaxQuestions -1;  i >= 0; i--)
+            foreach (var (key, _) in _questionsPerCategory)
+                _questionsPerCategory[key].Push($"{key} Question {i}");
     }
 }

@@ -1,19 +1,18 @@
-﻿using static System.Console;
+﻿using System;
 
 namespace Trivia;
 
 public class Game
 {
-    public Board Board { get; }
-
     private readonly IProvideQuestionBank _questionBank = new QuestionBank();
+    private Steps _nextStepIndex = Steps.RollDice;
 
     public Game()
     {
-        Board = new(_questionBank);
+        Board = new Board(_questionBank);
     }
 
-    private Player CurrentPlayer => Board.CurrentPlayer;
+    public Board Board { get; }
 
     public bool IsPlayable()
     {
@@ -22,66 +21,56 @@ public class Game
 
     public void Add(string playerName)
     {
-        Board.Add(new Player(playerName));
-        WriteLine(playerName + " was added");
-        WriteLine("They are player number " + Board.Players.Count);
+        Board.AddPlayer(new Player(playerName));
     }
 
     public void Roll(int diceNumber)
     {
-        var dice = new Dice(diceNumber);
-
-        WriteLine($"{CurrentPlayer.Name} is the current player");
-        WriteLine($"They have rolled a {dice.Number}");
-
-        if (CurrentPlayer.IsInPenaltyBox)
-            AttemptToExitFromPenaltyBox(dice);
-        else
-            PlayerMovesForwardAndIsAskedQuestion(dice);
-    }
-
-    private void PlayerMovesForwardAndIsAskedQuestion(Dice dice)
-    {
-        Board.MovesForward(dice);
-        Board.AsKQuestion();
-    }
-
-    private void AttemptToExitFromPenaltyBox(Dice dice)
-    {
-        if (dice.IsOdd)
-        {
-            CurrentPlayer.GettingOutPenaltyBox();
-            PlayerMovesForwardAndIsAskedQuestion(dice);
-        }
-        else
-        {
-            CurrentPlayer.NotGettingOutPenaltyBox();
-        }
-    }
-
-    public bool WasCorrectlyAnswered()
-    {
-        return CurrentPlayer.IsInPenaltyBox ? IsLeavingOrNotPenaltyBox() : PlayerGainColdCoin();
+        IntegrityForRollDice();
+        Board.PlayerRollDice(new Dice(diceNumber));
     }
 
     public bool WrongAnswer()
     {
-        WriteLine("Question was incorrectly answered");
-        CurrentPlayer.SendToPenaltyBox();
-        WriteLine($"{CurrentPlayer.Name} was sent to the penalty box");
-        return Board.TurnToTheNextPlayer(CurrentPlayer.DidWin());
+        IntegrityForAnsweredQuestion();
+        return Board.PlayerGiveWrongAnswer();
     }
 
-    private bool IsLeavingOrNotPenaltyBox()
+    public bool WasCorrectlyAnswered()
     {
-        return CurrentPlayer.IsGettingOutOfPenaltyBox ? 
-            PlayerGainColdCoin() : 
-            Board.TurnToTheNextPlayer(CurrentPlayer.DidWin());
+        IntegrityForAnsweredQuestion();
+        return Board.WasCorrectlyAnswered();
     }
 
-    private bool PlayerGainColdCoin()
+    private void IntegrityForRollDice()
     {
-        CurrentPlayer.GainGoldCoin();
-        return Board.TurnToTheNextPlayer(CurrentPlayer.DidWin());
+        CheckPlayableGame();
+
+        if (_nextStepIndex != Steps.RollDice)
+            throw new InvalidOperationException("You must roll the dice once, but not two");
+
+        _nextStepIndex = Steps.AnsweredQuestion;
+    }
+
+    private void IntegrityForAnsweredQuestion()
+    {
+        CheckPlayableGame();
+
+        if (_nextStepIndex != Steps.AnsweredQuestion)
+            throw new InvalidOperationException("You must roll the dice before answering a question");
+
+        _nextStepIndex = Steps.RollDice;
+    }
+
+    private void CheckPlayableGame()
+    {
+        if (!IsPlayable())
+            throw new InvalidOperationException("Game is not playable");
+    }
+
+    private enum Steps
+    {
+        RollDice,
+        AnsweredQuestion
     }
 }

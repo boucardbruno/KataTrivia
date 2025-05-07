@@ -49,6 +49,62 @@ internal class TriviaShould
     }
 
     [Test]
+    public void Current_category_when_curent_user_roll()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+        _game.Roll(2);
+        Check.That(_game.Board.CurrentCategory(new Player("Chet"))).IsEqualTo("Pop");
+        _game.WrongAnswer();
+        _game.Roll(3);
+        Check.That(_game.Board.CurrentCategory(new Player("Pat"))).IsEqualTo("Pop");
+    }
+
+    [Test]
+    public void Raise_exception_when_the_game_is_not_playable()
+    {
+        _game.Add("Chet");
+
+        Check.ThatCode(() => _game.Roll(2))
+            .Throws<InvalidOperationException>()
+            .WithMessage("Game is not playable");
+    }
+
+    [Test]
+    public void Raise_exception_when_the_answer_is_correct_before_rolling_a_dice()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+
+        Check.ThatCode(() => _game.WasCorrectlyAnswered())
+            .Throws<InvalidOperationException>()
+            .WithMessage("You must roll the dice before answering a question");
+    }
+
+    [Test]
+    public void Raise_exception_when_we_are_not_answer_correctly_before_rolling_a_dice()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+
+        Check.ThatCode(() => _game.WrongAnswer())
+            .Throws<InvalidOperationException>()
+            .WithMessage("You must roll the dice before answering a question");
+    }
+
+    [Test]
+    public void Raise_exception_when_we_are_not_answer_correctly_before_rolling()
+    {
+        _game.Add("Chet");
+        _game.Add("Pat");
+        _game.Roll(2);
+        
+        Check.ThatCode(() => _game.Roll(1))
+            .Throws<InvalidOperationException>()
+            .WithMessage("You must roll the dice once, but not two");
+    }
+
+    [Test]
     public void Location_for_player_raise_exception_when_the_player_is_not_added()
     {
         Check.ThatCode(() => LocationForPlayer("Paul")).Throws<ArgumentException>()
@@ -101,7 +157,6 @@ internal class TriviaShould
         _game.Add("Pat");
 
         _game.Roll(6);
-
         _game.WrongAnswer();
 
         _game.Roll(2);
@@ -212,7 +267,7 @@ internal class TriviaShould
     {
         var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
 
-        if (indexOfPlayer != -1) return !_game.Board[indexOfPlayer].DidWin();
+        if (indexOfPlayer != -1) return !_game.Board[indexOfPlayer].DidNotWin();
 
         throw new ArgumentException($"Player {playerName} not found");
     }

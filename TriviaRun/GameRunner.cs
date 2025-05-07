@@ -1,4 +1,5 @@
-﻿using Trivia;
+﻿using System;
+using Trivia;
 
 namespace TriviaRunner
 {

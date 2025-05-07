@@ -1,18 +1,8 @@
-﻿using System;
-
-namespace Trivia;
+﻿namespace Trivia;
 
 public class Game
 {
-    private readonly IProvideQuestionBank _questionBank = new QuestionBank();
-    private Steps _nextStepIndex = Steps.RollDice;
-
-    public Game()
-    {
-        Board = new Board(_questionBank);
-    }
-
-    public Board Board { get; }
+    public Board Board { get; } = new(new QuestionBank());
 
     public bool IsPlayable()
     {
@@ -46,20 +36,20 @@ public class Game
     {
         CheckPlayableGame();
 
-        if (_nextStepIndex != Steps.RollDice)
+        if (_nextIntegrityStepIndex != IntegritySteps.RollDice)
             throw new InvalidOperationException("You must roll the dice once, but not two");
 
-        _nextStepIndex = Steps.AnsweredQuestion;
+        _nextIntegrityStepIndex = IntegritySteps.AnsweredQuestion;
     }
 
     private void IntegrityForAnsweredQuestion()
     {
         CheckPlayableGame();
 
-        if (_nextStepIndex != Steps.AnsweredQuestion)
+        if (_nextIntegrityStepIndex != IntegritySteps.AnsweredQuestion)
             throw new InvalidOperationException("You must roll the dice before answering a question");
 
-        _nextStepIndex = Steps.RollDice;
+        _nextIntegrityStepIndex = IntegritySteps.RollDice;
     }
 
     private void CheckPlayableGame()
@@ -68,9 +58,11 @@ public class Game
             throw new InvalidOperationException("Game is not playable");
     }
 
-    private enum Steps
+    private enum IntegritySteps
     {
         RollDice,
         AnsweredQuestion
     }
+
+    private IntegritySteps _nextIntegrityStepIndex = IntegritySteps.RollDice;
 }

@@ -74,10 +74,10 @@ public class Board(IProvideQuestionBank questionBank)
 
     private bool TurnToTheNextCurrentPlayer(bool previousPlayerDidNotWin)
     {
-        return previousPlayerDidNotWin && TurnToNextPlayer();
+        return previousPlayerDidNotWin && TurnToTheNextPlayer();
     }
 
-    private bool TurnToNextPlayer()
+    private bool TurnToTheNextPlayer()
     {
         _currentPlayer++;
         if (_currentPlayer == _players.Count) _currentPlayer = 0;

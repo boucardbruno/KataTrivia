@@ -35,9 +35,36 @@ public class Board(IProvideQuestionBank questionBank)
         return CurrentPlayer.IsInPenaltyBox ? CurrentPlayIsLeavingOrNotPenaltyBox() : CurrentPlayerGainColdCoin();
     }
 
-    private void CurrentPlayerMovesForward(Dice diceNumber)
+    public bool PlayerGiveWrongAnswer()
     {
-        CurrentPlayer.Location += diceNumber.Number;
+        WriteLine("Question was incorrectly answered");
+
+        CurrentPlayerSendToPenaltyBox();
+
+        WriteLine($"{CurrentPlayer.Name} was sent to the penalty box");
+
+        return TurnToTheNextCurrentPlayer(CurrentPlayer.DidNotWin());
+    }
+
+    public void PlayerRollDice(Dice dice)
+    {
+        WriteLine($"{CurrentPlayer.Name} is the current player");
+        WriteLine($"They have rolled a {dice.Number}");
+
+        if (CurrentPlayer.IsInPenaltyBox)
+            CurrentPlayerAttemptToExitFromPenaltyBox(dice);
+        else
+            CurrentPlayerMovesForwardAndIsAskingQuestion(dice);
+    }
+
+    public string CurrentCategory(Player player)
+    {
+        return questionBank.CurrentCategory(player);
+    }
+
+    private void CurrentPlayerMovesForward(Dice dice)
+    {
+        CurrentPlayer.Location += dice.Number;
 
         if (CurrentPlayer.Location > 11) CurrentPlayer.Location -= 12;
 
@@ -47,13 +74,14 @@ public class Board(IProvideQuestionBank questionBank)
 
     private bool TurnToTheNextCurrentPlayer(bool previousPlayerDidNotWin)
     {
-        if (previousPlayerDidNotWin)
-        {
-            _currentPlayer++;
-            if (_currentPlayer == _players.Count) _currentPlayer = 0;
-        }
+        return previousPlayerDidNotWin && TurnToNextPlayer();
+    }
 
-        return previousPlayerDidNotWin;
+    private bool TurnToNextPlayer()
+    {
+        _currentPlayer++;
+        if (_currentPlayer == _players.Count) _currentPlayer = 0;
+        return true;
     }
 
     private void AsKQuestionToCurrentPlayer()
@@ -106,32 +134,5 @@ public class Board(IProvideQuestionBank questionBank)
     private void CurrentPlayerSendToPenaltyBox()
     {
         CurrentPlayer.SendToPenaltyBox();
-    }
-
-    public bool PlayerGiveWrongAnswer()
-    {
-        WriteLine("Question was incorrectly answered");
-
-        CurrentPlayerSendToPenaltyBox();
-
-        WriteLine($"{CurrentPlayer.Name} was sent to the penalty box");
-
-        return TurnToTheNextCurrentPlayer(CurrentPlayer.DidNotWin());
-    }
-
-    public void PlayerRollDice(Dice dice)
-    {
-        WriteLine($"{CurrentPlayer.Name} is the current player");
-        WriteLine($"They have rolled a {dice.Number}");
-
-        if (CurrentPlayer.IsInPenaltyBox)
-            CurrentPlayerAttemptToExitFromPenaltyBox(dice);
-        else
-            CurrentPlayerMovesForwardAndIsAskingQuestion(dice);
-    }
-
-    public string CurrentCategory(Player player)
-    {
-        return questionBank.CurrentCategory(player);
     }
 }

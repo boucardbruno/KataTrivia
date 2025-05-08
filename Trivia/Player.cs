@@ -4,7 +4,7 @@ namespace Trivia;
 
 public class Player(string name)
 {
-    private int _coldCoins;
+    public int GoldCoins { get; private set;}
     public string Name { get; } = name;
     public int Location { get; set; }
     public bool IsInPenaltyBox { get; private set; }
@@ -13,8 +13,8 @@ public class Player(string name)
     public void GainGoldCoin()
     {
         WriteLine("Answer was correct!!!!");
-        _coldCoins++;
-        WriteLine($"{Name} now has {_coldCoins} Gold Coins.");
+        GoldCoins++;
+        WriteLine($"{Name} now has {GoldCoins} Gold Coins.");
     }
 
     public void GettingOutPenaltyBox()
@@ -32,7 +32,7 @@ public class Player(string name)
 
     public bool DidNotWin()
     {
-        return _coldCoins != 6;
+        return GoldCoins != 6;
     }
 
     public void SendToPenaltyBox()

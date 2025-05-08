@@ -1,4 +1,5 @@
-﻿using NFluent;
+﻿using System;
+using NFluent;
 using NUnit.Framework;
 using Trivia;
 
@@ -118,7 +119,6 @@ internal class TriviaShould
         _game.Add("Pat");
 
         _game.Roll(6);
-
         _game.WrongAnswer();
 
         Check.That(PlayerIsInPenaltyBox("Chet")).IsTrue();
@@ -138,13 +138,15 @@ internal class TriviaShould
         _game.Add("Pat");
 
         _game.Roll(6);
-
         _game.WrongAnswer();
+
+        Check.That(PlayerIsInPenaltyBox("Chet")).IsTrue();
 
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
 
-        _game.Roll(3);
+        // Get an odd number to get out the penalty box
+        _game.Roll(3); 
         _game.WasCorrectlyAnswered();
 
         Check.That(PlayerIsInPenaltyBox("Chet")).IsFalse();
@@ -161,31 +163,8 @@ internal class TriviaShould
 
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
-
-        _game.Roll(2);
-        _game.WasCorrectlyAnswered();
-
-        Check.That(PlayerIsInPenaltyBox("Chet")).IsTrue();
-    }
-
-    [Test]
-    public void Do_not_go_to_out_penalty_box_when_player()
-    {
-        _game.Add("Chet");
-        _game.Add("Pat");
-
-        _game.Roll(7);
-        _game.WrongAnswer();
-
-        _game.Roll(2);
-        _game.WasCorrectlyAnswered();
-
-        _game.Roll(3);
-        _game.WrongAnswer();
-
-        _game.Roll(2);
-        _game.WasCorrectlyAnswered();
-
+        
+        // Too bad, we get an even number!!!
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
 
@@ -198,50 +177,85 @@ internal class TriviaShould
         _game.Add("Chet");
         _game.Add("Pat");
 
+        // Chet don't get a gold coin
         _game.Roll(6);
         _game.WrongAnswer();
+        Check.That(PlayerIsInPenaltyBox("Chet")).IsTrue();
+        Check.That(PlayerGoldCoins("Chet")).IsEqualTo(0);
 
+        // Pat should get 1 gold coin
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
+        Check.That(PlayerGoldCoins("Pat")).IsEqualTo(1);
 
+        // Chet is in penalty
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
+        Check.That(PlayerIsInPenaltyBox("Chet")).IsTrue();
+        Check.That(PlayerGoldCoins("Chet")).IsEqualTo(0);
 
+        // Pat should have 2 gold coins
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
+        Check.That(PlayerGoldCoins("Pat")).IsEqualTo(2);
 
+        // Chet still in penalty box
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
+        Check.That(PlayerIsInPenaltyBox("Chet")).IsTrue();
+        Check.That(PlayerGoldCoins("Chet")).IsEqualTo(0);
 
+        // Pat should have 3 gold coins
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
+        Check.That(PlayerGoldCoins("Pat")).IsEqualTo(3);
 
+        // Chet should get out the penalty box with an odd number and get 1 gold coins
+        _game.Roll(3);
+        _game.WasCorrectlyAnswered();
+        Check.That(PlayerIsInPenaltyBox("Chet")).IsFalse();
+        Check.That(PlayerGoldCoins("Chet")).IsEqualTo(1);
+
+        // Pat should have 4 gold coins
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
+        Check.That(PlayerGoldCoins("Pat")).IsEqualTo(4);
 
+        // Chet should have 2 gold coins
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
+        Check.That(PlayerGoldCoins("Chet")).IsEqualTo(2);
 
+        // Pat should have 5 gold coins
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
+        Check.That(PlayerGoldCoins("Pat")).IsEqualTo(5);
 
+       // Chet should have 3 gold coins
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
+        Check.That(PlayerGoldCoins("Chet")).IsEqualTo(3);
 
+        // Pat should have 6 gold coins!!!
         _game.Roll(2);
         _game.WasCorrectlyAnswered();
-
-        _game.Roll(2);
-        _game.WasCorrectlyAnswered();
+        Check.That(PlayerGoldCoins("Pat")).IsEqualTo(6);
 
         Check.That(PlayerWin("Pat")).IsTrue();
         Check.That(PlayerWin("Chet")).IsFalse();
     }
 
     [Test]
-    public void Player_win_raise_exception_when_the_player_is_not_added()
+    public void PlayerWin_raise_exception_when_the_player_is_not_added()
     {
         Check.ThatCode(() => PlayerWin("Paul")).Throws<ArgumentException>()
+            .WithMessage("Player Paul not found");
+    }
+
+   [ Test]
+    public void PlayerGoldCoins_raise_exception_when_the_player_is_not_added()
+    {
+        Check.ThatCode(() => PlayerGoldCoins("Paul")).Throws<ArgumentException>()
             .WithMessage("Player Paul not found");
     }
 
@@ -268,6 +282,14 @@ internal class TriviaShould
         var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
 
         if (indexOfPlayer != -1) return !_game.Board[indexOfPlayer].DidNotWin();
+
+        throw new ArgumentException($"Player {playerName} not found");
+    }
+
+    private int PlayerGoldCoins(string playerName)
+    {
+        var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
+        if (indexOfPlayer != -1) return _game.Board[indexOfPlayer].GoldCoins;
 
         throw new ArgumentException($"Player {playerName} not found");
     }

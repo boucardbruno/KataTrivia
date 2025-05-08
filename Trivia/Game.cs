@@ -1,8 +1,15 @@
-﻿namespace Trivia;
+﻿using System;
+
+namespace Trivia;
 
 public class Game
 {
-    public Board Board { get; } = new(new QuestionBank());
+#if TEST
+    public
+#else
+    internal 
+#endif
+    Board Board { get; } = new(new QuestionBank());
 
     public bool IsPlayable()
     {

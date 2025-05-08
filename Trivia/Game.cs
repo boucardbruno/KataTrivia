@@ -1,15 +1,8 @@
-﻿using System;
-
-namespace Trivia;
+﻿namespace Trivia;
 
 public class Game
 {
-#if TEST
-    public
-#else
-    internal 
-#endif
-    Board Board { get; } = new(new QuestionBank());
+    private Board Board { get; } = new(new QuestionBank());
 
     public bool IsPlayable()
     {
@@ -39,6 +32,13 @@ public class Game
         return Board.WasCorrectlyAnswered();
     }
 
+#if TEST
+    public Player GetPlayerByName(string playerName)
+    {
+        return Board.GetPlayerByName(playerName);
+    }
+#endif
+    
     private void IntegrityForRollDice()
     {
         CheckPlayableGame();
@@ -72,4 +72,9 @@ public class Game
     }
 
     private IntegritySteps _nextIntegrityStepIndex = IntegritySteps.RollDice;
+
+    public string CurrentCategory(string playerName)
+    {
+        return Board.CurrentCategory(new Player(playerName));
+    }
 }

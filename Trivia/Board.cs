@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Trivia;
+﻿namespace Trivia;
 
 using static Console;
 
@@ -12,7 +8,6 @@ public class Board(IProvideQuestionBank questionBank)
     private int _currentPlayer;
     private Player CurrentPlayer => _players[_currentPlayer];
 
-    public Player this[int index] => _players[index];
     public IReadOnlyCollection<Player> Players => _players.ToList();
 
     public void AddPlayer(Player player)
@@ -22,14 +17,22 @@ public class Board(IProvideQuestionBank questionBank)
         WriteLine("They are player number " + Players.Count);
     }
 
-    public int FindIndex(Func<Player, bool> predicate)
+#if TEST
+    
+    public Player GetPlayerByName(string playerName)
     {
-        for (var i = 0; i < _players.Count; i++)
-            if (predicate(_players[i]))
-                return i;
-        return -1;
+        var indexOfPlayer = FindIndex(p => p.Name == playerName);
+        if (indexOfPlayer != -1) return _players[indexOfPlayer];
+
+        throw new ArgumentException($"Player {playerName} not found");
     }
 
+    public string CurrentCategory(Player player)
+    {
+        return questionBank.CurrentCategory(player);
+    }
+
+#endif
     public bool WasCorrectlyAnswered()
     {
         return CurrentPlayer.IsInPenaltyBox ? CurrentPlayIsLeavingOrNotPenaltyBox() : CurrentPlayerGainColdCoin();
@@ -57,11 +60,6 @@ public class Board(IProvideQuestionBank questionBank)
             CurrentPlayerMovesForwardAndIsAskingQuestion(dice);
     }
 
-    public string CurrentCategory(Player player)
-    {
-        return questionBank.CurrentCategory(player);
-    }
-
     private void CurrentPlayerMovesForward(Dice dice)
     {
         CurrentPlayer.Location += dice.Number;
@@ -70,6 +68,14 @@ public class Board(IProvideQuestionBank questionBank)
 
         WriteLine($"{CurrentPlayer.Name}'s new location is {CurrentPlayer.Location}");
         WriteLine($"The category is {questionBank.CurrentCategory(CurrentPlayer)}");
+    }
+
+    private int FindIndex(Func<Player, bool> predicate)
+    {
+        for (var i = 0; i < _players.Count; i++)
+            if (predicate(_players[i]))
+                return i;
+        return -1;
     }
 
     private bool TurnToTheNextCurrentPlayer(bool previousPlayerDidNotWin)

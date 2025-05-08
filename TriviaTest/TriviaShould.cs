@@ -54,11 +54,15 @@ internal class TriviaShould
     {
         _game.Add("Chet");
         _game.Add("Pat");
+
         _game.Roll(2);
-        Check.That(_game.Board.CurrentCategory(new Player("Chet"))).IsEqualTo("Pop");
+        
+        Check.That(_game.CurrentCategory("Chet")).IsEqualTo("Pop");
+        
         _game.WrongAnswer();
         _game.Roll(3);
-        Check.That(_game.Board.CurrentCategory(new Player("Pat"))).IsEqualTo("Pop");
+        
+        Check.That(_game.CurrentCategory("Pat")).IsEqualTo("Pop");
     }
 
     [Test]
@@ -241,14 +245,14 @@ internal class TriviaShould
         _game.WasCorrectlyAnswered();
         Check.That(PlayerGoldCoins("Pat")).IsEqualTo(6);
 
-        Check.That(PlayerWin("Pat")).IsTrue();
-        Check.That(PlayerWin("Chet")).IsFalse();
+        Check.That(PlayerWinTheGame("Pat")).IsTrue();
+        Check.That(PlayerWinTheGame("Chet")).IsFalse();
     }
 
     [Test]
     public void PlayerWin_raise_exception_when_the_player_is_not_added()
     {
-        Check.ThatCode(() => PlayerWin("Paul")).Throws<ArgumentException>()
+        Check.ThatCode(() => PlayerWinTheGame("Paul")).Throws<ArgumentException>()
             .WithMessage("Player Paul not found");
     }
 
@@ -259,38 +263,23 @@ internal class TriviaShould
             .WithMessage("Player Paul not found");
     }
 
+    private bool PlayerWinTheGame(string playerName)
+    {
+        return !_game.GetPlayerByName(playerName).DidNotWin();
+    }
+
     private int LocationForPlayer(string playerName)
     {
-        var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
-
-        if (indexOfPlayer != -1) return _game.Board[indexOfPlayer].Location;
-
-        throw new ArgumentException($"Player {playerName} not found");
+        return _game.GetPlayerByName(playerName).Location;
     }
 
     private bool PlayerIsInPenaltyBox(string playerName)
     {
-        var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
-
-        if (indexOfPlayer != -1) return _game.Board[indexOfPlayer].IsInPenaltyBox;
-
-        throw new ArgumentException($"Player {playerName} not found");
-    }
-
-    private bool PlayerWin(string playerName)
-    {
-        var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
-
-        if (indexOfPlayer != -1) return !_game.Board[indexOfPlayer].DidNotWin();
-
-        throw new ArgumentException($"Player {playerName} not found");
+        return _game.GetPlayerByName(playerName).IsInPenaltyBox;
     }
 
     private int PlayerGoldCoins(string playerName)
     {
-        var indexOfPlayer = _game.Board.FindIndex(p => p.Name == playerName);
-        if (indexOfPlayer != -1) return _game.Board[indexOfPlayer].GoldCoins;
-
-        throw new ArgumentException($"Player {playerName} not found");
+       return _game.GetPlayerByName(playerName).GoldCoins;
     }
 }

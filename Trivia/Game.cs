@@ -4,16 +4,6 @@ public class Game
 {
     private Board Board { get; } = new(new QuestionBank());
 
-    public bool IsPlayable()
-    {
-        return Board.Players.Count >= 2;
-    }
-
-    public void Add(string playerName)
-    {
-        Board.AddPlayer(new Player(playerName));
-    }
-
     public void Roll(int diceNumber)
     {
         IntegrityForRollDice();
@@ -32,49 +22,59 @@ public class Game
         return Board.WasCorrectlyAnswered();
     }
 
+    public void Add(string playerName)
+    {
+        Board.AddPlayer(new Player(playerName));
+    }
+
+    public bool IsPlayable()
+    {
+        return Board.IsPlayable();
+    }
+
 #if TEST
+    public string CurrentCategory(string playerName)
+    {
+        return Board.CurrentCategory(playerName);
+    }
+
     public Player GetPlayerByName(string playerName)
     {
         return Board.GetPlayerByName(playerName);
     }
 #endif
-    
+
     private void IntegrityForRollDice()
     {
         CheckPlayableGame();
 
-        if (_nextIntegrityStepIndex != IntegritySteps.RollDice)
+        if (_nextGammeIntegrityForIndex != GammeIntegrityFor.CallRoll)
             throw new InvalidOperationException("You must roll the dice once, but not two");
 
-        _nextIntegrityStepIndex = IntegritySteps.AnsweredQuestion;
+        _nextGammeIntegrityForIndex = GammeIntegrityFor.CallAnsweredQuestion;
     }
 
     private void IntegrityForAnsweredQuestion()
     {
         CheckPlayableGame();
 
-        if (_nextIntegrityStepIndex != IntegritySteps.AnsweredQuestion)
+        if (_nextGammeIntegrityForIndex != GammeIntegrityFor.CallAnsweredQuestion)
             throw new InvalidOperationException("You must roll the dice before answering a question");
 
-        _nextIntegrityStepIndex = IntegritySteps.RollDice;
+        _nextGammeIntegrityForIndex = GammeIntegrityFor.CallRoll;
     }
 
     private void CheckPlayableGame()
     {
-        if (!IsPlayable())
+        if (!Board.IsPlayable())
             throw new InvalidOperationException("Game is not playable");
     }
 
-    private enum IntegritySteps
+    private enum GammeIntegrityFor
     {
-        RollDice,
-        AnsweredQuestion
+        CallRoll,
+        CallAnsweredQuestion
     }
 
-    private IntegritySteps _nextIntegrityStepIndex = IntegritySteps.RollDice;
-
-    public string CurrentCategory(string playerName)
-    {
-        return Board.CurrentCategory(new Player(playerName));
-    }
+    private GammeIntegrityFor _nextGammeIntegrityForIndex = GammeIntegrityFor.CallRoll;
 }

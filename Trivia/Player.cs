@@ -4,11 +4,11 @@ namespace Trivia;
 
 public class Player(string name)
 {
-    public int GoldCoins { get; private set;}
     public string Name { get; } = name;
     public int Location { get; set; }
     public bool IsInPenaltyBox { get; private set; }
     public bool IsGettingOutOfPenaltyBox { get; private set; }
+    public int GoldCoins { get; private set;}
 
     public void GainGoldCoin()
     {

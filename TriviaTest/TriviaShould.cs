@@ -1,5 +1,4 @@
-﻿using System;
-using NFluent;
+﻿using NFluent;
 using NUnit.Framework;
 using Trivia;
 
@@ -50,19 +49,19 @@ internal class TriviaShould
     }
 
     [Test]
-    public void Current_category_when_curent_user_roll()
+    public void Check_current_category_when_curent_user_roll()
     {
         _game.Add("Chet");
         _game.Add("Pat");
 
         _game.Roll(2);
         
-        Check.That(_game.CurrentCategory("Chet")).IsEqualTo("Pop");
+        Check.That(_game.CurrentCategory("Chet")).IsEqualTo("Sports");
         
         _game.WrongAnswer();
-        _game.Roll(3);
+        _game.Roll(7);
         
-        Check.That(_game.CurrentCategory("Pat")).IsEqualTo("Pop");
+        Check.That(_game.CurrentCategory("Pat")).IsEqualTo("Rock");
     }
 
     [Test]

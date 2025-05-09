@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Trivia;
+﻿namespace Trivia;
 
 public class QuestionBank : IProvideQuestionBank
 {
@@ -22,7 +19,7 @@ public class QuestionBank : IProvideQuestionBank
 
     public void AskQuestion(Player player)
     {
-        _questionsPerCategory[CurrentCategory(player)].Pop();
+       CurrentCategory(player);
     }
 
     public string CurrentCategory(Player player)

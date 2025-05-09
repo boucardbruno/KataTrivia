@@ -7,8 +7,7 @@ public class Board(IProvideQuestionBank questionBank)
     private readonly List<Player> _players = [];
     private int _currentPlayer;
     private Player CurrentPlayer => _players[_currentPlayer];
-
-    public IReadOnlyCollection<Player> Players => _players.ToList();
+    private IReadOnlyCollection<Player> Players => _players.ToList();
 
     public void AddPlayer(Player player)
     {
@@ -18,7 +17,11 @@ public class Board(IProvideQuestionBank questionBank)
     }
 
 #if TEST
-    
+    public string CurrentCategory(string playerName)
+    {
+        return questionBank.CurrentCategory(GetPlayerByName(playerName));
+    }
+
     public Player GetPlayerByName(string playerName)
     {
         var indexOfPlayer = FindIndex(p => p.Name == playerName);
@@ -27,12 +30,13 @@ public class Board(IProvideQuestionBank questionBank)
         throw new ArgumentException($"Player {playerName} not found");
     }
 
-    public string CurrentCategory(Player player)
+#endif
+
+    public bool IsPlayable()
     {
-        return questionBank.CurrentCategory(player);
+        return Players.Count >= 2;
     }
 
-#endif
     public bool WasCorrectlyAnswered()
     {
         return CurrentPlayer.IsInPenaltyBox ? CurrentPlayIsLeavingOrNotPenaltyBox() : CurrentPlayerGainColdCoin();

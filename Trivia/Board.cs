@@ -1,19 +1,15 @@
 ﻿namespace Trivia;
 
-using static Console;
-
 public class Board(IProvideQuestionBank questionBank)
 {
     private readonly List<Player> _players = [];
-    private int _currentPlayer;
-    private Player CurrentPlayer => _players[_currentPlayer];
-    private IReadOnlyCollection<Player> Players => _players.ToList();
+    private int _currentIndexPlayers;
+    private Player CurrentPlayer => _players[_currentIndexPlayers];
 
     public void AddPlayer(Player player)
     {
         _players.Add(player);
-        WriteLine(player.Name + " was added");
-        WriteLine("They are player number " + Players.Count);
+        Logger.AddPlayer(player, _players.Count);
     }
 
 #if TEST
@@ -34,7 +30,7 @@ public class Board(IProvideQuestionBank questionBank)
 
     public bool IsPlayable()
     {
-        return Players.Count >= 2;
+        return _players.Count >= 2;
     }
 
     public bool WasCorrectlyAnswered()
@@ -44,19 +40,18 @@ public class Board(IProvideQuestionBank questionBank)
 
     public bool PlayerGiveWrongAnswer()
     {
-        WriteLine("Question was incorrectly answered");
+        Logger.IncorrectAnswer();
 
         CurrentPlayerSendToPenaltyBox();
 
-        WriteLine($"{CurrentPlayer.Name} was sent to the penalty box");
+        Logger.CurrentPlayerWasSentToPenaltyBox(CurrentPlayer.Name);
 
         return TurnToTheNextCurrentPlayer(CurrentPlayer.DidNotWin());
     }
 
     public void PlayerRollDice(Dice dice)
     {
-        WriteLine($"{CurrentPlayer.Name} is the current player");
-        WriteLine($"They have rolled a {dice.Number}");
+        Logger.CurrentPlayerStatus(dice, CurrentPlayer.Name);
 
         if (CurrentPlayer.IsInPenaltyBox)
             CurrentPlayerAttemptToExitFromPenaltyBox(dice);
@@ -69,9 +64,8 @@ public class Board(IProvideQuestionBank questionBank)
         CurrentPlayer.Location += dice.Number;
 
         if (CurrentPlayer.Location > 11) CurrentPlayer.Location -= 12;
-
-        WriteLine($"{CurrentPlayer.Name}'s new location is {CurrentPlayer.Location}");
-        WriteLine($"The category is {questionBank.CurrentCategory(CurrentPlayer)}");
+        
+        Logger.PlayerLocationAndCategory(CurrentPlayer.Name, CurrentPlayer.Location, CurrentCategory(CurrentPlayer.Name));
     }
 
     private int FindIndex(Func<Player, bool> predicate)
@@ -89,8 +83,8 @@ public class Board(IProvideQuestionBank questionBank)
 
     private bool TurnToTheNextPlayer()
     {
-        _currentPlayer++;
-        if (_currentPlayer == _players.Count) _currentPlayer = 0;
+        _currentIndexPlayers++;
+        if (_currentIndexPlayers == _players.Count) _currentIndexPlayers = 0;
         return true;
     }
 

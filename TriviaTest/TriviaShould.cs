@@ -4,6 +4,7 @@ using Trivia;
 
 namespace TriviaTest;
 
+[TestFixture]
 internal class TriviaShould
 {
     private Game _game = null!;

@@ -12,21 +12,21 @@ public class Player(string name)
 
     public void GainGoldCoin()
     {
-        WriteLine("Answer was correct!!!!");
+        Logger.CorrectAnswer();
         GoldCoins++;
-        WriteLine($"{Name} now has {GoldCoins} Gold Coins.");
+        Logger.PlayerGoldCoinCount(Name, GoldCoins);
     }
 
     public void GettingOutPenaltyBox()
     {
         IsGettingOutOfPenaltyBox = true;
         GetOutOfPenaltyBox();
-        WriteLine($"{Name} is getting out of the penalty box");
+        Logger.PlayerGettingOutOfPenaltyBox(Name);
     }
 
     public void NotGettingOutPenaltyBox()
     {
-        WriteLine($"{Name} is not getting out of the penalty box");
+        Logger.PlayerGettingOutPenaltyBox(Name);
         IsGettingOutOfPenaltyBox = false;
     }
 

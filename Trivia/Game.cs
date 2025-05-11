@@ -48,20 +48,20 @@ public class Game
     {
         CheckPlayableGame();
 
-        if (_nextGammeIntegrityForIndex != GammeIntegrityFor.CallRoll)
+        if (_nextGameIntegrityForIndex != GameIntegrityFor.CallRoll)
             throw new InvalidOperationException("You must roll the dice once, but not two");
 
-        _nextGammeIntegrityForIndex = GammeIntegrityFor.CallAnsweredQuestion;
+        _nextGameIntegrityForIndex = GameIntegrityFor.CallAnsweredQuestion;
     }
 
     private void IntegrityForAnsweredQuestion()
     {
         CheckPlayableGame();
 
-        if (_nextGammeIntegrityForIndex != GammeIntegrityFor.CallAnsweredQuestion)
+        if (_nextGameIntegrityForIndex != GameIntegrityFor.CallAnsweredQuestion)
             throw new InvalidOperationException("You must roll the dice before answering a question");
 
-        _nextGammeIntegrityForIndex = GammeIntegrityFor.CallRoll;
+        _nextGameIntegrityForIndex = GameIntegrityFor.CallRoll;
     }
 
     private void CheckPlayableGame()
@@ -70,11 +70,11 @@ public class Game
             throw new InvalidOperationException("Game is not playable");
     }
 
-    private enum GammeIntegrityFor
+    private enum GameIntegrityFor
     {
         CallRoll,
         CallAnsweredQuestion
     }
 
-    private GammeIntegrityFor _nextGammeIntegrityForIndex = GammeIntegrityFor.CallRoll;
+    private GameIntegrityFor _nextGameIntegrityForIndex = GameIntegrityFor.CallRoll;
 }
